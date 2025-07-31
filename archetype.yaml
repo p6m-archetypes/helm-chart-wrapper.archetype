@@ -1,0 +1,9 @@
+---
+description: "Wrapper Helm Chart"
+authors: ["Ali Samji <ali@ybor.ai>"]
+languages: []
+frameworks: []
+tags: []
+
+requires:
+  archetect: "2.0.3"
