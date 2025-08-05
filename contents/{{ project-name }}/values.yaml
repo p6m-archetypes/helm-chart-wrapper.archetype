@@ -1,0 +1,46 @@
+externalSecrets:
+  # A value indicating whether the secretstore should be created. It is important to note, this will not create the remote resource (Azure Keyvault, Hashicorp Vault, etc.).
+  # This will only setup the integration between the namespace where the helm chart is installed and the remote resource.
+  create: false
+
+  # The name of the secret store to create. This will also configure permissions for the secretstore to access the remote provider. The permissions may differ between providers.
+  # Example:
+  # When using Azure KeyVault for secrets management, the name of the secret store should match the name of the keyvault.
+  #     The keyvault will need to be created manually in the same subscription as the cluster running Langflow Runtime.
+  # See the templates/secretstore.yaml for details on other providers.
+  # storeName: "Name"
+
+  # A list of secrets that should be pulled from the SecretStore. The secret supports the following fields:
+  # `name` - The name of the secret as it appears on the remote secret management provider.
+  # `target` - (Optional) The name of the kubernetes Secret that will contain the data from the remote secret. Defaults to the value specified in `name`
+  # `format` - (Optional) The format of the remote secret. One of `json` or `raw`, defaults to `json`.
+  #            When `json`, it will read the remote secret as a json object and parse it as key-value pairs for the kube secret.
+  #            NOTE: Kubernetes secrets only support a flat hierarchy of { "string": "string" }.
+  #            When `raw`, the kubernetes secret will be created with a single key under `data` called `value`. The `value` will be set to the remote secret parsed as a string.
+  # Example:
+  # secrets:
+  #   - name: secret-1
+  #   - name: secret-2
+  #     target: kube-secret-2
+  #   - name: secret-3
+  #     format: raw
+  # secrets: []
+
+"{{ wrapped-chart }}": {}
+
+gatewayApi:
+  # A value indicating whether to create GatewayApi resources. To use legacy Ingress,
+  # use the values under `langflow-runtime.ingress`
+  enabled: false
+  gateway:
+    # value indicating whether to create the Gateway or to expect an existing one.
+    create: false
+    # The name of the Gateway. If not specified and gatewayApi.create is true, defaults to release name.
+    # name: ''
+    # The namespace of the Gateway. Ignored when gatewayApi.gateway.create is true
+    # namespace: ''
+    # The name of the GatewayClass the created Gateway should use. Only relevant when gatewayApi.gateway.create is true.
+    # className: ''
+    # The listener on the Gateway that the created HTTPRoute should be attached to.
+    sectionName: https
+

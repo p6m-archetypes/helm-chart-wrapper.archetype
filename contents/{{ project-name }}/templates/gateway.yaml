@@ -1,0 +1,85 @@
+{{ `{{- $wrapped_chart := get .Values "{{ wrapped-chart }}" }}` }}
+
+{{ `{{- if .Values.gatewayApi.enabled }}` }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ `{{ .Release.Name }}` }}
+spec:
+  hostnames:
+  - "{{ wrapped-chart }}.{{ `{{ .Values.p6m.cluster.domainName }}` }}"
+  parentRefs:
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    name: {{ `{{ include "gateway.name" $ }}` }}
+    namespace: {{ `{{ include "gateway.namespace" $ }}` }}
+    sectionName: {{ `{{ .Values.gatewayApi.gateway.sectionName }}` }}
+  rules:
+  - backendRefs:
+    - group: ""
+      kind: Service
+      name: {{ `{{ .Release.Name }}` }}
+      namespace: {{ `{{ .Release.Namespace }}` }}
+      port: {{ `{{ $wrapped_chart.service.port }}` }}
+    matches:
+    - path:
+        type: PathPrefix
+        value: /
+{{ `{{- if .Values.gatewayApi.gateway.create }}` }}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: {{ `{{ include "gateway.name" $ }}` }}
+spec:
+  gatewayClassName: {{ `{{ .Values.gatewayApi.gateway.className }}` }}
+  {{ `{{- if .Values.gatewayApi.gateway.infrastructure }}` }}
+  infrastructure:
+    {{ `{{- .Values.gatewayApi.gateway.infrastructure | toYaml | nindent 4 }}` }}
+  {{ `{{- end }}` }}
+  listeners:
+  - allowedRoutes:
+      namespaces:
+        from: Same
+    name: http
+    port: 80
+    protocol: HTTP
+  # TODO: Enable https listener on custom gateway
+  # - allowedRoutes:
+  #     namespaces:
+  #       from: Same
+  #   name: https
+  #   port: 443
+  #   protocol: HTTPS
+  #   tls:
+  #     certificateRefs:
+  #     - group: ""
+  #       kind: Secret
+  #       name: {{ `{{ .Release.Name }}` }}-certificate
+  #       namespace: {{ `{{ .Release.Namespace }}` }}
+  #     mode: Terminate
+# ---
+# # Route to redirect from HTTP to HTTPS on custom gateway.
+# apiVersion: gateway.networking.k8s.io/v1
+# kind: HTTPRoute
+# metadata:
+#   name: {{ `{{ .Release.Namespace }}` }}-redirect
+# spec:
+#   parentRefs:
+#   - group: gateway.networking.k8s.io
+#     kind: Gateway
+#     name: {{ `{{ include "gateway.name" $ }}` }}
+#     namespace: {{ `{{ include "gateway.namespace" $ }}` }}
+#     sectionName: http
+#   rules:
+#   - filters:
+#     - requestRedirect:
+#         scheme: https
+#         statusCode: 301
+#       type: RequestRedirect
+#     matches:
+#     - path:
+#         type: PathPrefix
+#         value: /
+{{ `{{- end }}` }}
+{{ `{{- end }}` }}

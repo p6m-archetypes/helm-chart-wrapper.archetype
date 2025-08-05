@@ -1,0 +1,60 @@
+# Install the Gateway API CRDs
+GATEWAY_API_VERSION = "v1.3.0"
+GATEWAY_API_URL = "https://github.com/kubernetes-sigs/gateway-api/releases/download/%s/standard-install.yaml" % GATEWAY_API_VERSION
+
+local_resource("gw-api-crds-fetch", "curl -sfLo gateway-api-crds.yaml %s" % GATEWAY_API_URL)
+k8s_yaml("gateway-api-crds.yaml")
+k8s_resource(
+    new_name="gw-api-crds",
+    objects=[
+        'gatewayclasses.gateway.networking.k8s.io',
+        'gateways.gateway.networking.k8s.io',
+        'grpcroutes.gateway.networking.k8s.io',
+        'httproutes.gateway.networking.k8s.io',
+        'referencegrants.gateway.networking.k8s.io',
+    ],
+    resource_deps=[
+        "gw-api-crds-fetch",
+    ],
+)
+###
+
+load('ext://helm_resource', 'helm_resource', 'helm_repo')
+
+helm_resource(
+    name='nginx-gateway-api',
+    chart='oci://ghcr.io/nginx/charts/nginx-gateway-fabric',
+    release_name='ngx',
+    namespace='nginx-system',
+    flags=['--create-namespace'],
+    resource_deps=[
+        'gw-api-crds',
+    ],
+)
+
+helm_resource(
+    name='this',
+    chart='.',
+    release_name='{{ project-name }}',
+    namespace='{{ wrapped-chart }}',
+    flags=[
+        '--create-namespace',
+        '--set', 'gatewayApi.enabled=true',
+        '--set', 'gatewayApi.gateway.create=true',
+        '--set', 'gatewayApi.gateway.className=nginx',
+        '--set', 'gatewayApi.gateway.sectionName=http',
+        '--set', 'p6m.cluster.domainName=local',
+    ],
+    resource_deps=[
+        'nginx-gateway-api',
+    ],
+    deps=[
+        'values.yaml',
+        'Chart.yaml',
+        '.helmignore',
+        # Directories
+        'templates',
+        'charts',
+    ],
+)
+
