@@ -26,7 +26,7 @@ externalSecrets:
   #     format: raw
   # secrets: []
 
-"{{ wrapped-chart }}": {}
+{{ wrapped-chart }}: {}
 
 gatewayApi:
   # A value indicating whether to create GatewayApi resources. To use legacy Ingress,

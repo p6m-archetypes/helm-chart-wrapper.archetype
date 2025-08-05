@@ -19,9 +19,6 @@ context += prompt("Chart to wrap:", "wrapped-chart", #{
 });
 
 context += prompt("Repository of chart to wrap:", "wrapped-repository", #{
-  cases: [
-    CasedValue(KebabCase),
-  ],
 });
 
 context += prompt("Version of chart to wrap:", "wrapped-chart-version", );
