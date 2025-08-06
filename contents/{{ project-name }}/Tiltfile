@@ -3,16 +3,12 @@ GATEWAY_API_VERSION = "v1.3.0"
 GATEWAY_API_URL = "https://github.com/kubernetes-sigs/gateway-api/releases/download/%s/standard-install.yaml" % GATEWAY_API_VERSION
 
 local_resource("gw-api-crds-fetch", "curl -sfLo gateway-api-crds.yaml %s" % GATEWAY_API_URL)
-k8s_yaml("gateway-api-crds.yaml")
+gw_crds = read_file("gateway-api-crds.yaml", default="{}")
+gw_crd_objects = [x['metadata']['name'] for x in decode_yaml_stream(gw_crds)]
+k8s_yaml(gw_crds)
 k8s_resource(
     new_name="gw-api-crds",
-    objects=[
-        'gatewayclasses.gateway.networking.k8s.io',
-        'gateways.gateway.networking.k8s.io',
-        'grpcroutes.gateway.networking.k8s.io',
-        'httproutes.gateway.networking.k8s.io',
-        'referencegrants.gateway.networking.k8s.io',
-    ],
+    objects=gw_crd_objects,
     resource_deps=[
         "gw-api-crds-fetch",
     ],
