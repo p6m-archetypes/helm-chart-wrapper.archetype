@@ -7,7 +7,7 @@ Author: {{ author_full }}
 ## Parameters
 
 | Name | Description | Default |
-------
+| --- | --- | --- |
 | `externalSecrets.enabled` | A value indicating whether [ESO](https://external-secrets.io/latest/) integration should be enabled | `false` |
 | `externalSecrets.storeConfig` | Additional config to pass in to the SecretStore composition, see below for documentation on the different supported secretstores | `{}` |
 | `externalSecrets.certificateStoreConfig` | Config to create a separate secret store for certificates | `{}` |
@@ -52,7 +52,7 @@ externalSecrets:
 You can pass in the list of secrets you wish to pull in from the remote secret store via `externalSecrets.secrets`. Each item can have the following values.
 
 | Name | Description | Default |
---------
+| --- | --- | --- |
 | `name` | The name of the secret key on the remote secret provider (required) |
 | `target` | The name of the kubernetes secret where the remote secret should be downloaded. If not specified, defaults to the `name` | `""` |
 | `format` | The format of the remote secret. Can be `raw` or `json` | `json` |
@@ -65,7 +65,7 @@ If the format is `raw`, the remote secret will be interpreted as plaintext/binar
 You can pass in the list of certificates you wish to pull in from the remote secret store via `externalSecrets.certificates`. The created kubernetes secret will have type `kubernetes.io/tls`. Each item can have the following values.
 
 | Name | Description | Default |
---------
+| --- | --- | --- |
 | `name` | The name of the secret key on the remote secret provider (required) |
 | `target` | The name of the kubernetes secret where the remote certificate should be downloaded. If not specified, defaults to the `name` | `""` |
 | `format` | The format of the remote certificate. Can be `pkcs12` or `pem` | `pkcs12` |
