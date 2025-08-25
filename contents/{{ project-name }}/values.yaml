@@ -1,7 +1,6 @@
 externalSecrets:
-  # A value indicating whether the secretstore should be created. It is important to note, this will not create the remote resource (Azure Keyvault, Hashicorp Vault, etc.).
-  # This will only setup the integration between the namespace where the helm chart is installed and the remote resource.
-  create: false
+  # A value indicating whether ESO integration for secrets should be enabled.
+  enabled: false
 
   # The name of the secret store to create. This will also configure permissions for the secretstore to access the remote provider. The permissions may differ between providers.
   # Example:
