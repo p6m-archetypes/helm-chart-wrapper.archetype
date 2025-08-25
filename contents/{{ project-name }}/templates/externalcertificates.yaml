@@ -21,7 +21,7 @@ spec:
 {{ '{{- end }}' }}
 
 # ExternalSecrets
-{{ '{{- range .Values.externalSecrets.secrets }}' }}
+{{ '{{- range .Values.externalSecrets.certificates }}' }}
 ---
 apiVersion: external-secrets.io/v1beta1
 kind: ExternalSecret
@@ -45,13 +45,13 @@ spec:
     name: "{{ '{{ .target | default .name }}' }}"
     {{ '{{- if eq (.format | default "pkcs12") "pkcs12" }}' }}
     data:
-      tls.crt: "{{ '{{ .value | b64dec | pkcs12cert }}' }}"
-      tls.key: "{{ '{{ .value | b64dec | pkcs12key }}' }}"
+      tls.crt: {{ '"{{ "{{" }} .value | b64dec | pkcs12cert {{ "}}" }}"' }}
+      tls.key: {{ '"{{ "{{" }} .value | b64dec | pkcs12key {{ "}}" }}"' }}
     {{ '{{- end }}' }}
     {{ '{{- if eq (.format | default "pkcs12") "pem" }}' }}
     data:
-      tls.crt: "{{ '{{ .value | filterPEM "CERTIFICATE" }}' }}"
-      tls.key: "{{ '{{ .value | filterPEM "PRIVATE KEY" }}' }}"
+      tls.crt: "{{ '"{{ "{{" }} .value | filterPEM \"CERTIFICATE\" {{ "}}" }}"' }}"
+      tls.key: "{{ '"{{ "{{" }} .value | filterPEM \"PRIVATE KEY\" {{ "}}" }}"' }}"
     {{ '{{- end }}' }}
 {{ '{{- end }}' }}
 {{ '{{- end }}' }}
