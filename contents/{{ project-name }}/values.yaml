@@ -7,7 +7,7 @@ externalSecrets:
   # Example:
   # When using Azure KeyVault for secrets management, the name of the secret store should match the name of the keyvault.
   #     The keyvault will need to be created manually in the same subscription as the cluster running Langflow Runtime.
-  # See the templates/secretstore.yaml for details on other providers.
+  # See the templates/externalsecrets.yaml for details on other providers.
   # storeName: "Name"
 
   # A list of secrets that should be pulled from the SecretStore. The secret supports the following fields:
