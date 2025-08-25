@@ -1,5 +1,6 @@
 {{ '{{- if .Values.externalSecrets.enabled }}' }}
-{{ '{{ $storeName := .Release.Name }}' }}
+{{ '{{ $storeName := printf "%s-certificates" .Release.Name }}' }}
+{{ '{{ $storeConfig := merge .Values.externalSecrets.certificateStoreConfig .Values.externalSecrets.storeConfig }}' }}
 {{ '{{- if eq .Values.p6m.cloud "azure" }}' }}
 apiVersion: secrets.p6m.dev/v1alpha1
 kind: AzureSecretStore
@@ -7,7 +8,7 @@ metadata:
   name: "{{ '{{ $storeName }}' }}"
 spec:
   parameters:
-    {{ '{{- .Values.externalSecrets.storeConfig | toYaml | nindent 4 }}' }}
+    {{ '{{- $storeConfig | toYaml | nindent 4 }}' }}
 {{ '{{- end }}' }}
 {{ '{{- if eq .Values.p6m.cloud "aws" }}' }}
 apiVersion: secrets.p6m.dev/v1alpha1
@@ -16,7 +17,7 @@ metadata:
   name: "{{ '{{ $storeName }}' }}"
 spec:
   parameters:
-    {{ '{{- .Values.externalSecrets.storeConfig | toYaml | nindent 4 }}' }}
+    {{ '{{- $storeConfig | toYaml | nindent 4 }}' }}
 {{ '{{- end }}' }}
 
 # ExternalSecrets
@@ -30,17 +31,10 @@ metadata:
     {{ '{{- include "platform.labels" $ | nindent 4 }}' }}
   name: "{{ '{{ $.Release.Name }}' }}-{{ '{{ .target | default .name }}' }}"
 spec:
-  {{ '{{- if eq (.format | default "json") "raw" }}' }}
   data:
     - secretKey: value
       remoteRef:
         key: "{{ '{{ .name }}' }}"
-  {{ '{{- end }}' }}
-  {{ '{{- if eq (.format | default "json") "json" }}' }}
-  dataFrom:
-    - extract:
-        key: "{{ '{{ .name }}' }}"
-  {{ '{{- end }}' }}
   refreshInterval: 1m
   secretStoreRef:
     kind: SecretStore
@@ -49,5 +43,15 @@ spec:
     creationPolicy: Owner
     deletionPolicy: Delete
     name: "{{ '{{ .target | default .name }}' }}"
+    {{ '{{- if eq (.format | default "pkcs12") "pkcs12" }}' }}
+    data:
+      tls.crt: "{{ '{{ .value | b64dec | pkcs12cert }}' }}"
+      tls.key: "{{ '{{ .value | b64dec | pkcs12key }}' }}"
+    {{ '{{- end }}' }}
+    {{ '{{- if eq (.format | default "pkcs12") "pem" }}' }}
+    data:
+      tls.crt: "{{ '{{ .value | filterPEM "CERTIFICATE" }}' }}"
+      tls.key: "{{ '{{ .value | filterPEM "PRIVATE KEY" }}' }}"
+    {{ '{{- end }}' }}
 {{ '{{- end }}' }}
 {{ '{{- end }}' }}
