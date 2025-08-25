@@ -43,6 +43,7 @@ spec:
     creationPolicy: Owner
     deletionPolicy: Delete
     name: "{{ '{{ .target | default .name }}' }}"
+    type: kubernetes.io/tls
     {{ '{{- if eq (.format | default "pkcs12") "pkcs12" }}' }}
     data:
       tls.crt: {{ '"{{ "{{" }} .value | b64dec | pkcs12cert {{ "}}" }}"' }}
