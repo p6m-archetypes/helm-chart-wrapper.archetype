@@ -26,11 +26,12 @@ externalSecrets:
   #     format: raw
   # secrets: []
 
+# Values to pass to the wrapped chart
 {{ wrapped-chart }}: {}
 
 gatewayApi:
-  # A value indicating whether to create GatewayApi resources. To use legacy Ingress,
-  # use the values under `langflow-runtime.ingress`
+  # A value indicating whether to create GatewayApi resources. This is mainly
+  # useful for those charts that only support legacy ingress.
   enabled: false
   gateway:
     # value indicating whether to create the Gateway or to expect an existing one.
