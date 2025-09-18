@@ -3,7 +3,7 @@ GATEWAY_API_FLAVOR := "standard-install"  # standard-install or experimental-ins
 
 test: create-test-cluster
     helm upgrade --install --wait {{ project-name }} . -n {{ wrapped-chart }} --create-namespace
-    helm test
+    helm test {{ project-name }} -n {{ wrapped-chart }}
     just delete-test-cluster
 
 create-test-cluster:
