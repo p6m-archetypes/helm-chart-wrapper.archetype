@@ -1,0 +1,4 @@
+# Value overrides for tilt.
+p6m:
+  cluster:
+    domainName: kind

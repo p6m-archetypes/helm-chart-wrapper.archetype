@@ -1,0 +1,20 @@
+GATEWAY_API_VERSION := "v1.3.0"
+GATEWAY_API_FLAVOR := "standard-install"  # standard-install or experimental-install
+
+create-test-cluster:
+    kind create cluster -n {{ project-name }} || true
+    # Install Gateway API CRDs and a controller
+    kubectl apply -f "https://github.com/kubernetes-sigs/gateway-api/releases/download/{{ "{{ GATEWAY_API_VERSION }}" }}/{{ "{{ GATEWAY_API_FLAVOR }}" }}.yaml"
+    helm repo add istio https://istio-release.storage.googleapis.com/charts
+    helm upgrade --install --wait istio-base istio/base -n istio-system --create-namespace
+    helm upgrade --install --wait istiod istio/istiod -n istio-system --set profile=demo
+
+    # ADD OTHER CLUSTER INITIALIZATION HERE
+    ###
+
+    # NOTES:
+    # You can now run `tilt up` to install/monitor the current helm chart on the test cluster.
+    # Please run `sudo cloud-provider-kind` if you need to use a `Gateway` or `Service` with type `LoadBalancer`.
+
+delete-test-cluster:
+    kind delete cluster -n {{ project-name }}

@@ -70,3 +70,12 @@ You can pass in the list of certificates you wish to pull in from the remote sec
 | `target` | The name of the kubernetes secret where the remote certificate should be downloaded. If not specified, defaults to the `name` | `""` |
 | `format` | The format of the remote certificate. Can be `pkcs12` or `pem` | `pkcs12` |
 
+## Testing the Helm Chart
+
+Testing is done via a combination of the Justfile and the Tiltfile.
+
+1. Execute `just create-test-cluster` to spin up a test kubernetes cluster using kind. You can customize how the test cluster is initialized by modifying the command.
+2. Execute `tilt up` to launch a tilt daemon/server that will watch the current repository for code changes and automatically deploy them to the test cluster.
+
+When done, simply run `just delete-test-cluster` to destroy the test kubernetes cluster.
+

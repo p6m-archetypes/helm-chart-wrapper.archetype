@@ -1,32 +1,4 @@
-# Install the Gateway API CRDs
-GATEWAY_API_VERSION = "v1.3.0"
-GATEWAY_API_URL = "https://github.com/kubernetes-sigs/gateway-api/releases/download/%s/standard-install.yaml" % GATEWAY_API_VERSION
-
-local_resource("gw-api-crds-fetch", "curl -sfLo gateway-api-crds.yaml %s" % GATEWAY_API_URL)
-gw_crds = read_file("gateway-api-crds.yaml", default="{}")
-gw_crd_objects = [x['metadata']['name'] for x in decode_yaml_stream(gw_crds)]
-k8s_yaml(gw_crds)
-k8s_resource(
-    new_name="gw-api-crds",
-    objects=gw_crd_objects,
-    resource_deps=[
-        "gw-api-crds-fetch",
-    ],
-)
-###
-
 load('ext://helm_resource', 'helm_resource', 'helm_repo')
-
-helm_resource(
-    name='nginx-gateway-api',
-    chart='oci://ghcr.io/nginx/charts/nginx-gateway-fabric',
-    release_name='ngx',
-    namespace='nginx-system',
-    flags=['--create-namespace'],
-    resource_deps=[
-        'gw-api-crds',
-    ],
-)
 
 helm_resource(
     name='this',
@@ -35,16 +7,10 @@ helm_resource(
     namespace='{{ wrapped-chart }}',
     flags=[
         '--create-namespace',
-        '--set', 'gatewayApi.enabled=true',
-        '--set', 'gatewayApi.gateway.create=true',
-        '--set', 'gatewayApi.gateway.className=nginx',
-        '--set', 'gatewayApi.gateway.sectionName=http',
-        '--set', 'p6m.cluster.domainName=local',
-    ],
-    resource_deps=[
-        'nginx-gateway-api',
+        '--values', 'tilt-values.yaml',
     ],
     deps=[
+        'tilt-values.yaml',
         'values.yaml',
         'Chart.yaml',
         '.helmignore',
