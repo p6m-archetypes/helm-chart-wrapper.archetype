@@ -1,6 +1,11 @@
 GATEWAY_API_VERSION := "v1.3.0"
 GATEWAY_API_FLAVOR := "standard-install"  # standard-install or experimental-install
 
+test: create-test-cluster
+    helm upgrade --install --wait {{ project-name }} . -n {{ wrapped-chart }} --create-namespace
+    helm test
+    just delete-test-cluster
+
 create-test-cluster:
     kind create cluster -n {{ project-name }} || true
     # Install Gateway API CRDs and a controller
